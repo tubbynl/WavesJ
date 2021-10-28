@@ -6,10 +6,12 @@ import com.wavesplatform.transactions.account.PrivateKey;
 import com.wavesplatform.transactions.common.Amount;
 import com.wavesplatform.transactions.common.AssetId;
 import com.wavesplatform.transactions.common.Proof;
+import com.wavesplatform.transactions.data.DataEntry;
 import com.wavesplatform.transactions.data.StringEntry;
 import org.junit.jupiter.api.Test;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,7 +60,26 @@ class NodeTest {
     }
 
     @Test
-    void testOvewriteDefaultFee() {
+    void testDefaultCalculateFeeWith100Entries() {
+        UUID value = UUID.randomUUID();
+
+        // sut
+        List<DataEntry> dataEntries = new ArrayList<>();
+        for(int i=0;i<100;i++) {
+            dataEntries.add(new StringEntry("key-"+i,value.toString()));
+        }
+        Amount fee = DataTransaction.builder(dataEntries)
+                .getUnsigned()
+                .fee();
+
+        // verify it has a Fee
+        assertNotNull(fee);
+        assertEquals(AssetId.WAVES,fee.assetId());
+        assertEquals(500_000,fee.value());
+    }
+
+    @Test
+    void testOverwriteDefaultFee() {
         UUID value = UUID.randomUUID();
 
         // sut
